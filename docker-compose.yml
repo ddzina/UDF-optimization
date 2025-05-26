@@ -1,0 +1,29 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql-dboptimization
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=DBOptimization123!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - dboptimization-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P DBOptimization123! -C -Q 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  mssql_data:
+    driver: local
+
+networks:
+  dboptimization-network:
+    driver: bridge
